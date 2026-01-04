@@ -1,21 +1,13 @@
 pipeline {
   agent any
 
-  tools {
-    // Optionnel: si tu as configuré un JDK dans Jenkins (Manage Jenkins > Tools)
-    // jdk 'JDK17'
-  }
-
-  options {
-    timestamps()
-  }
 
   stages {
     stage('Test') {
       steps {
         echo "Running unit tests..."
         // --no-daemon utile sur Jenkins
-        sh './gradlew --no-daemon clean test'
+        bat './gradlew --no-daemon clean test'
       }
       post {
         always {
