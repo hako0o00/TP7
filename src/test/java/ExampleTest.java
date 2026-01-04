@@ -5,17 +5,14 @@ import java.io.File;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        features = "Features",
+        features = "feature",
         plugin = {
                 "pretty",
-                "html:build/reports/cucumber/index.html",
-                "json:build/reports/cucumber/report.json"
+                "json:build/cucumber/cucumber.json",
+                "html:build/cucumber/cucumber.html"
         }
 )
+
 public class ExampleTest {
 
-    static {
-        // Make sure the folder exists before Cucumber tries to write index.html / report.json
-        new File("build/reports/cucumber").mkdirs();
-    }
 }
