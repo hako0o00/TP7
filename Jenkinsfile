@@ -96,38 +96,127 @@ pipeline {
   post {
     success {
       script {
-        // Notification de succès par email et Slack
-        def recipients = env.DEFAULT_RECIPIENTS ?: ''
-        if (recipients) {
-          emailext (
-            subject: "SUCCESS: Pipeline '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-            body: "Le pipeline s'est terminé avec succès.\n\nConsultez: ${env.BUILD_URL}",
-            to: recipients
-          )
+        // 2.6 La phase Notification - Succès
+        // Notification de succès par email et Slack informant l'équipe du déploiement réussi
+        def recipients = 'inima.a04@gmail.com'
+        def branchName = env.BRANCH_NAME ?: 'main'
+        def commitMessage = ''
+        try {
+          commitMessage = bat(
+            script: 'git log -1 --pretty=%%B',
+            returnStdout: true
+          ).trim()
+        } catch (Exception e) {
+          commitMessage = 'Non disponible'
         }
-        // Slack notification (requires Slack plugin)
-        // slackSend(
-        //   color: 'good',
-        //   message: "Pipeline ${env.JOB_NAME} #${env.BUILD_NUMBER} réussi avec succès!"
-        // )
+        
+        def emailBody = """
+Le pipeline s'est terminé avec succès et le déploiement a été effectué avec succès.
+
+Détails du build:
+- Projet: ${env.JOB_NAME}
+- Build: #${env.BUILD_NUMBER}
+- Branche: ${branchName}
+- Commit: ${commitMessage}
+- URL du build: ${env.BUILD_URL}
+
+Phases exécutées avec succès:
+✓ Tests unitaires
+✓ Analyse de code (SonarQube)
+✓ Quality Gate
+✓ Build (JAR + Documentation)
+✓ Déploiement vers MyMavenRepo
+
+L'équipe de développement peut maintenant utiliser l'artifact déployé.
+"""
+        
+        // Notification par email
+        emailext (
+          subject: "✅ SUCCESS: Déploiement réussi - ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+          body: emailBody,
+          to: recipients,
+          mimeType: 'text/html'
+        )
+        
+        // Notification sur Slack (nécessite le plugin Slack)
+        try {
+          slackSend(
+            color: 'good',
+            channel: env.SLACK_CHANNEL ?: '#general',
+            message: """
+✅ *Déploiement réussi!*
+Projet: *${env.JOB_NAME}*
+Build: #${env.BUILD_NUMBER}
+Branche: ${branchName}
+Le déploiement vers MyMavenRepo a été effectué avec succès.
+${env.BUILD_URL}
+"""
+          )
+        } catch (Exception e) {
+          echo "Notification Slack non disponible (plugin non installé ou non configuré): ${e.getMessage()}"
+        }
       }
     }
     failure {
       script {
-        // Notification d'échec par email et Slack
-        def recipients = env.DEFAULT_RECIPIENTS ?: ''
-        if (recipients) {
-          emailext (
-            subject: "FAILED: Pipeline '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-            body: "Le pipeline a échoué.\n\nConsultez: ${env.BUILD_URL}",
-            to: recipients
+        // 2.6 La phase Notification - Échec
+        // Notification d'échec par email et Slack informant l'équipe de l'échec
+        def recipients = 'inima.a04@gmail.com'
+        def branchName = env.BRANCH_NAME ?: 'main'
+        
+        def emailBody = """
+Le pipeline a échoué lors de l'exécution.
+
+Détails du build:
+- Projet: ${env.JOB_NAME}
+- Build: #${env.BUILD_NUMBER}
+- Branche: ${branchName}
+- URL du build: ${env.BUILD_URL}
+- URL des logs: ${env.BUILD_URL}console
+
+Le pipeline s'est arrêté en raison d'une erreur dans l'une des phases suivantes:
+- Test
+- Code Analysis
+- Code Quality
+- Build
+- Deploy
+
+Veuillez consulter les logs complets pour identifier la phase exacte en échec et les détails de l'erreur.
+L'équipe de développement doit corriger les problèmes avant de relancer le pipeline.
+"""
+        
+        // Notification par email
+        emailext (
+          subject: "❌ FAILED: Pipeline échoué - ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+          body: emailBody,
+          to: recipients,
+          mimeType: 'text/html'
+        )
+        
+        // Notification sur Slack (nécessite le plugin Slack)
+        try {
+          slackSend(
+            color: 'danger',
+            channel: env.SLACK_CHANNEL ?: '#general',
+            message: """
+❌ *Pipeline échoué!*
+Projet: *${env.JOB_NAME}*
+Build: #${env.BUILD_NUMBER}
+Branche: ${branchName}
+Une erreur s'est produite dans l'une des phases du pipeline.
+Veuillez consulter les logs pour plus de détails.
+${env.BUILD_URL}
+"""
           )
+        } catch (Exception e) {
+          echo "Notification Slack non disponible (plugin non installé ou non configuré): ${e.getMessage()}"
         }
-        // Slack notification (requires Slack plugin)
-        // slackSend(
-        //   color: 'danger',
-        //   message: "Pipeline ${env.JOB_NAME} #${env.BUILD_NUMBER} a échoué!"
-        // )
+      }
+    }
+    always {
+      script {
+        // Log final pour traçabilité
+        echo "Pipeline terminé. Statut: ${currentBuild.currentResult}"
       }
     }
   }
