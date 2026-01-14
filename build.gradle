@@ -44,6 +44,11 @@ sonar {
 }
 
 // Maven Publish configuration for MyMavenRepo
+// Credentials should be configured in Jenkins: Manage Jenkins -> System -> Global properties
+// Set these environment variables:
+// - MAVEN_REPO_URL (Write URL): https://mymavenrepo.com/repo/46U5q4YlVGdOF8kdrGMJ/
+// - MAVEN_REPO_USERNAME: myMavenRepo
+// - MAVEN_REPO_PASSWORD: 2003
 publishing {
     publications {
         maven(MavenPublication) {
@@ -57,10 +62,17 @@ publishing {
     
     repositories {
         maven {
-            url = project.findProperty('mavenRepoUrl') ?: System.getenv('MAVEN_REPO_URL') ?: 'https://mymavenrepo.com/repo/...'
+            // Use Write URL for publishing
+            url = project.findProperty('mavenRepoUrl') ?: 
+                  System.getenv('MAVEN_REPO_URL') ?: 
+                  'https://mymavenrepo.com/repo/46U5q4YlVGdOF8kdrGMJ/'
             credentials {
-                username = project.findProperty('mavenRepoUsername') ?: System.getenv('MAVEN_REPO_USERNAME') ?: ''
-                password = project.findProperty('mavenRepoPassword') ?: System.getenv('MAVEN_REPO_PASSWORD') ?: ''
+                username = project.findProperty('mavenRepoUsername') ?: 
+                          System.getenv('MAVEN_REPO_USERNAME') ?: 
+                          'myMavenRepo'
+                password = project.findProperty('mavenRepoPassword') ?: 
+                          System.getenv('MAVEN_REPO_PASSWORD') ?: 
+                          '2003'
             }
         }
     }
