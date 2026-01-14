@@ -127,7 +127,7 @@ pipeline {
             """
           }
         } catch (Exception e) {
-          echo "Erreur Slack: ${e.getMessage()}"
+          echo "Erreur Slack:    ${e.getMessage()}"
         }
       }
     }
