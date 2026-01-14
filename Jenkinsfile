@@ -90,9 +90,9 @@ pipeline {
 
         try {
           withCredentials([string(credentialsId: 'slack_hook', variable: 'SLACK_WEBHOOK_URL')]) {
-            bat """
-              curl -X POST -H "Content-type: application/json" --data "${slackJson}" "%SLACK_WEBHOOK_URL%"
-            """
+            writeFile file: 'slack_payload.json', text: slackJson
+            bat 'curl -X POST -H "Content-type: application/json" --data @slack_payload.json "%SLACK_WEBHOOK_URL%"'
+            bat 'del slack_payload.json'
           }
         } catch (Exception e) {
           echo "Erreur Slack: ${e.getMessage()}"
@@ -122,12 +122,12 @@ pipeline {
 
         try {
           withCredentials([string(credentialsId: 'slack_hook', variable: 'SLACK_WEBHOOK_URL')]) {
-            bat """
-              curl -X POST -H "Content-type: application/json" --data "${slackJson}" "%SLACK_WEBHOOK_URL%"
-            """
+            writeFile file: 'slack_payload.json', text: slackJson
+            bat 'curl -X POST -H "Content-type: application/json" --data @slack_payload.json "%SLACK_WEBHOOK_URL%"'
+            bat 'del slack_payload.json'
           }
         } catch (Exception e) {
-          echo "Erreur Slack:    ${e.getMessage()}"
+          echo "Erreur Slack: ${e.getMessage()}"
         }
       }
     }
