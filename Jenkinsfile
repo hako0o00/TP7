@@ -78,11 +78,14 @@ pipeline {
     success {
       script {
         // Notification de succès par email et Slack
-        emailext (
-          subject: "SUCCESS: Pipeline '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-          body: "Le pipeline s'est terminé avec succès.\n\nConsultez: ${env.BUILD_URL}",
-          to: "${env.DEFAULT_RECIPIENTS ?: ''}"
-        )
+        def recipients = env.DEFAULT_RECIPIENTS ?: ''
+        if (recipients) {
+          emailext (
+            subject: "SUCCESS: Pipeline '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+            body: "Le pipeline s'est terminé avec succès.\n\nConsultez: ${env.BUILD_URL}",
+            to: recipients
+          )
+        }
         // Slack notification (requires Slack plugin)
         // slackSend(
         //   color: 'good',
@@ -93,11 +96,14 @@ pipeline {
     failure {
       script {
         // Notification d'échec par email et Slack
-        emailext (
-          subject: "FAILED: Pipeline '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-          body: "Le pipeline a échoué.\n\nConsultez: ${env.BUILD_URL}",
-          to: "${env.DEFAULT_RECIPIENTS ?: ''}"
-        )
+        def recipients = env.DEFAULT_RECIPIENTS ?: ''
+        if (recipients) {
+          emailext (
+            subject: "FAILED: Pipeline '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+            body: "Le pipeline a échoué.\n\nConsultez: ${env.BUILD_URL}",
+            to: recipients
+          )
+        }
         // Slack notification (requires Slack plugin)
         // slackSend(
         //   color: 'danger',
