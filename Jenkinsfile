@@ -30,7 +30,7 @@ pipeline {
     stage('Code Analysis') {
       steps {
         script {
-          // Use the configured SonarQube installation
+                 // Use the configured SonarQube installation
           // If SONAR_SERVER_NAME is not set in Jenkins job configuration,
           // you need to update it to match your SonarQube installation name
           // Check: Manage Jenkins -> System -> SonarQube servers
