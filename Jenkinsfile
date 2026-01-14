@@ -35,7 +35,7 @@ pipeline {
           // IMPORTANT: The name must EXACTLY match the installation name in Jenkins
           // To find it: Manage Jenkins -> System -> SonarQube servers -> check the "Name" field
           // You can set SONAR_SERVER_NAME in Jenkins job configuration to override
-          def sonarServer = env.SONAR_SERVER_NAME ?: 'SonarQube'
+          def sonarServer = env.SONAR_SERVER_NAME ?: 'Sonar'
           echo "Attempting to use SonarQube server: ${sonarServer}"
           echo "If this fails, check the exact name in: Manage Jenkins -> System -> SonarQube servers"
           try {
