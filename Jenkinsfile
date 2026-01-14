@@ -4,8 +4,9 @@ pipeline {
   environment {
     // SonarQube server name - should match the installation name configured in Jenkins
     // To find the correct name: Manage Jenkins -> System -> SonarQube servers
-    // If not set, will default to 'Sonar'
-    SONAR_SERVER = "${env.SONAR_SERVER_NAME ?: 'Sonar'}"
+    // If not set, will default to 'SonarQube' (common default name)
+    // You can override by setting SONAR_SERVER_NAME in Jenkins job configuration
+    SONAR_SERVER = "${env.SONAR_SERVER_NAME ?: 'SonarQube'}"
     GRADLE_OPTS = '-Xmx1024m -XX:MaxMetaspaceSize=512m'
   }
 
@@ -31,12 +32,20 @@ pipeline {
       steps {
         script {
           // Use the configured SonarQube installation
-          // If SONAR_SERVER_NAME is not set in Jenkins job configuration,
-          // will use 'Sonar' as default (matches Jenkins configuration)
-          def sonarServer = env.SONAR_SERVER_NAME ?: 'Sonar'
-          echo "Using SonarQube server: ${sonarServer}"
-          withSonarQubeEnv("${sonarServer}") {
-            bat '.\\gradlew.bat --no-daemon sonar'
+          // IMPORTANT: The name must EXACTLY match the installation name in Jenkins
+          // To find it: Manage Jenkins -> System -> SonarQube servers -> check the "Name" field
+          // You can set SONAR_SERVER_NAME in Jenkins job configuration to override
+          def sonarServer = env.SONAR_SERVER_NAME ?: 'SonarQube'
+          echo "Attempting to use SonarQube server: ${sonarServer}"
+          echo "If this fails, check the exact name in: Manage Jenkins -> System -> SonarQube servers"
+          try {
+            withSonarQubeEnv("${sonarServer}") {
+              bat '.\\gradlew.bat --no-daemon sonar'
+            }
+          } catch (Exception e) {
+            error("SonarQube connection failed. Please verify the installation name matches exactly. " +
+                  "Current name: '${sonarServer}'. " +
+                  "Check: Manage Jenkins -> System -> SonarQube servers")
           }
         }
       }
