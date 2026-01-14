@@ -4,8 +4,8 @@ pipeline {
   environment {
     // SonarQube server name - should match the installation name configured in Jenkins
     // To find the correct name: Manage Jenkins -> System -> SonarQube servers
-    // If not set, will default to 'SonarQubeLocal'
-    SONAR_SERVER = "${env.SONAR_SERVER_NAME ?: 'SonarQubeLocal'}"
+    // If not set, will default to 'Sonar'
+    SONAR_SERVER = "${env.SONAR_SERVER_NAME ?: 'Sonar'}"
     GRADLE_OPTS = '-Xmx1024m -XX:MaxMetaspaceSize=512m'
   }
 
@@ -30,11 +30,10 @@ pipeline {
     stage('Code Analysis') {
       steps {
         script {
-                 // Use the configured SonarQube installation
+          // Use the configured SonarQube installation
           // If SONAR_SERVER_NAME is not set in Jenkins job configuration,
-          // you need to update it to match your SonarQube installation name
-          // Check: Manage Jenkins -> System -> SonarQube servers
-          def sonarServer = env.SONAR_SERVER_NAME ?: 'SonarQubeLocal'
+          // will use 'Sonar' as default (matches Jenkins configuration)
+          def sonarServer = env.SONAR_SERVER_NAME ?: 'Sonar'
           echo "Using SonarQube server: ${sonarServer}"
           withSonarQubeEnv("${sonarServer}") {
             bat '.\\gradlew.bat --no-daemon sonar'
