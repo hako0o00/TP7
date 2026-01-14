@@ -131,29 +131,17 @@ L'équipe de développement peut maintenant utiliser l'artifact déployé.
 """
         
         // Notification par email
-        emailext (
-          subject: "✅ SUCCESS: Déploiement réussi - ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
-          body: emailBody,
-          to: recipients,
-          mimeType: 'text/html'
-        )
-        
-        // Notification sur Slack (nécessite le plugin Slack)
         try {
-          slackSend(
-            color: 'good',
-            channel: env.SLACK_CHANNEL ?: '#general',
-            message: """
-✅ *Déploiement réussi!*
-Projet: *${env.JOB_NAME}*
-Build: #${env.BUILD_NUMBER}
-Branche: ${branchName}
-Le déploiement vers MyMavenRepo a été effectué avec succès.
-${env.BUILD_URL}
-"""
+          emailext (
+            subject: "✅ SUCCESS: Déploiement réussi - ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+            body: emailBody,
+            to: recipients,
+            mimeType: 'text/html'
           )
+          echo "Notification email envoyée avec succès à ${recipients}"
         } catch (Exception e) {
-          echo "Notification Slack non disponible (plugin non installé ou non configuré): ${e.getMessage()}"
+          echo "Erreur lors de l'envoi de l'email: ${e.getMessage()}"
+          echo "Vérifiez la configuration SMTP dans Jenkins: Manage Jenkins -> System -> Extended E-mail Notification"
         }
       }
     }
@@ -186,30 +174,17 @@ L'équipe de développement doit corriger les problèmes avant de relancer le pi
 """
         
         // Notification par email
-        emailext (
-          subject: "❌ FAILED: Pipeline échoué - ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
-          body: emailBody,
-          to: recipients,
-          mimeType: 'text/html'
-        )
-        
-        // Notification sur Slack (nécessite le plugin Slack)
         try {
-          slackSend(
-            color: 'danger',
-            channel: env.SLACK_CHANNEL ?: '#general',
-            message: """
-❌ *Pipeline échoué!*
-Projet: *${env.JOB_NAME}*
-Build: #${env.BUILD_NUMBER}
-Branche: ${branchName}
-Une erreur s'est produite dans l'une des phases du pipeline.
-Veuillez consulter les logs pour plus de détails.
-${env.BUILD_URL}
-"""
+          emailext (
+            subject: "❌ FAILED: Pipeline échoué - ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+            body: emailBody,
+            to: recipients,
+            mimeType: 'text/html'
           )
+          echo "Notification email envoyée avec succès à ${recipients}"
         } catch (Exception e) {
-          echo "Notification Slack non disponible (plugin non installé ou non configuré): ${e.getMessage()}"
+          echo "Erreur lors de l'envoi de l'email: ${e.getMessage()}"
+          echo "Vérifiez la configuration SMTP dans Jenkins: Manage Jenkins -> System -> Extended E-mail Notification"
         }
       }
     }
