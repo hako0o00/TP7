@@ -43,4 +43,33 @@ sonar {
     }
 }
 
+// Maven Publish configuration for MyMavenRepo
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            
+            groupId = project.group
+            artifactId = rootProject.name
+            version = project.version
+        }
+    }
+    
+    repositories {
+        maven {
+            url = project.findProperty('mavenRepoUrl') ?: System.getenv('MAVEN_REPO_URL') ?: 'https://mymavenrepo.com/repo/...'
+            credentials {
+                username = project.findProperty('mavenRepoUsername') ?: System.getenv('MAVEN_REPO_USERNAME') ?: ''
+                password = project.findProperty('mavenRepoPassword') ?: System.getenv('MAVEN_REPO_PASSWORD') ?: ''
+            }
+        }
+    }
+}
+
+// JavaDoc task for documentation
+javadoc {
+    destinationDir = file("${buildDir}/docs/javadoc")
+    options.encoding = 'UTF-8'
+}
+
 

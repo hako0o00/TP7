@@ -31,5 +31,79 @@ pipeline {
         }
       }
     }
+
+    stage('Code Quality') {
+      steps {
+        script {
+          // Wait for SonarQube Quality Gate
+          timeout(time: 5, unit: 'MINUTES') {
+            def qg = waitForQualityGate()
+            if (qg.status != 'OK') {
+                error "Quality Gate failed: ${qg.status}"
+            }
+          }
+        }
+      }
+    }
+
+    stage('Build') {
+      steps {
+        script {
+          // 1) Génération du fichier Jar
+          bat '.\\gradlew.bat --no-daemon jar'
+          
+          // 2) Génération de la documentation
+          bat '.\\gradlew.bat --no-daemon javadoc'
+        }
+      }
+      post {
+        always {
+          // 3) Archivage du fichier Jar et de la documentation
+          archiveArtifacts artifacts: 'build/libs/*.jar, build/docs/javadoc/**', allowEmptyArchive: true
+        }
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        script {
+          // Déploiement vers MyMavenRepo
+          bat '.\\gradlew.bat --no-daemon publish'
+        }
+      }
+    }
+  }
+
+  post {
+    success {
+      script {
+        // Notification de succès par email et Slack
+        emailext (
+          subject: "SUCCESS: Pipeline '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+          body: "Le pipeline s'est terminé avec succès.\n\nConsultez: ${env.BUILD_URL}",
+          to: "${env.DEFAULT_RECIPIENTS ?: ''}"
+        )
+        // Slack notification (requires Slack plugin)
+        // slackSend(
+        //   color: 'good',
+        //   message: "Pipeline ${env.JOB_NAME} #${env.BUILD_NUMBER} réussi avec succès!"
+        // )
+      }
+    }
+    failure {
+      script {
+        // Notification d'échec par email et Slack
+        emailext (
+          subject: "FAILED: Pipeline '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+          body: "Le pipeline a échoué.\n\nConsultez: ${env.BUILD_URL}",
+          to: "${env.DEFAULT_RECIPIENTS ?: ''}"
+        )
+        // Slack notification (requires Slack plugin)
+        // slackSend(
+        //   color: 'danger',
+        //   message: "Pipeline ${env.JOB_NAME} #${env.BUILD_NUMBER} a échoué!"
+        // )
+      }
+    }
   }
 }
