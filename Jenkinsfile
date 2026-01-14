@@ -150,7 +150,7 @@ L'équipe de développement peut maintenant utiliser l'artifact déployé.
         // 2.6 La phase Notification - Échec
         // Notification d'échec par email et Slack informant l'équipe de l'échec
         def recipients = 'inima.a04@gmail.com'
-        def branchName = env.BRANCH_NAME ?: 'main'
+        def branchName =  env.BRANCH_NAME ?: 'main'
         
         def emailBody = """
 Le pipeline a échoué lors de l'exécution.
