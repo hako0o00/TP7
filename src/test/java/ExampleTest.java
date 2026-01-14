@@ -5,7 +5,7 @@ import java.io.File;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        features = "feature",
+        features = "Features",
         plugin = {
                 "pretty",
                 "json:build/cucumber/cucumber.json",

@@ -21,6 +21,13 @@ dependencies {
 test {
     useJUnit()               // optional, but explicit for JUnit4
     finalizedBy jacocoTestReport
+    
+    // Configure JVM memory for test execution
+    jvmArgs = [
+        '-Xms128m',
+        '-Xmx512m',
+        '-XX:MaxMetaspaceSize=256m'
+    ]
 }
 
 

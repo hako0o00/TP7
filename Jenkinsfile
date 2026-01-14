@@ -3,6 +3,7 @@ pipeline {
 
   environment {
     SONAR_SERVER = 'SonarQubeLocal'
+    GRADLE_OPTS = '-Xmx1024m -XX:MaxMetaspaceSize=512m'
   }
 
   stages {
